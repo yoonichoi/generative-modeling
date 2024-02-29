@@ -39,6 +39,9 @@ def vae_loss(model, x, beta = 1):
     # closed form, you can find the formula here:
     # (https://stats.stackexchange.com/questions/318748/deriving-the-kl-divergence-loss-for-vaes).
     ##################################################################
+    # total_loss = None
+    # recon_loss = None
+    # kl_loss = None
     mu, log_var = model.encoder(x)
     std = torch.exp(log_var)
     z = mu + std * torch.randn_like(std).to(x.device)
@@ -67,6 +70,7 @@ def linear_beta_scheduler(max_epochs=None, target_val = 1):
     ##################################################################
     def _helper(epoch):
         return target_val * epoch / max_epochs
+        # pass
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

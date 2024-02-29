@@ -27,7 +27,7 @@ class UpSampleConv2D(torch.jit.ScriptModule):
         # (batch, channel, height*upscale_factor, width*upscale_factor)
         # 3. Apply convolution and return output
         ##################################################################
-        x = x.repeat(1, self.upscale_factor ** 2, 1, 1)
+        x = x.repeat(1, int(self.upscale_factor ** 2), 1, 1)
         x = F.pixel_shuffle(x, self.upscale_factor)
         return self.conv(x)
         ##################################################################
@@ -58,8 +58,8 @@ class DownSampleConv2D(torch.jit.ScriptModule):
         ##################################################################
         x = F.pixel_unshuffle(x, self.downscale_ratio)
         b, c, h, w = x.size()
-        x = x.reshape(b, int(self.downscale_ratio ** 2), c, h, w)
-        x = x.mean(dim=0)
+        x = x.reshape(b, -1, int(self.downscale_ratio ** 2), h, w)
+        x = x.mean(dim=2)
         return self.conv(x)
 
         ##################################################################
@@ -294,7 +294,7 @@ class Generator(torch.jit.ScriptModule):
         # TODO 1.1: Generate n_samples latents and forward through the
         # network.
         ##################################################################
-        z = torch.randn(n_samples, 128).to('cuda' if torch.cuda.is_available() else 'cpu')
+        z = torch.randn(n_samples, 128).to('cuda')
         return self.forward_given_samples(z)
         ##################################################################
         #                          END OF YOUR CODE                      #
